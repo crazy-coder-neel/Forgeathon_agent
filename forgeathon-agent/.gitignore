@@ -1,0 +1,54 @@
+# Dependencies & build outputs
+node_modules/
+dist/
+out/
+build/
+*.vsix
+*.tsbuildinfo
+
+# Environment variables & secrets
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+config.local.json
+config.local.*.json
+*.local.json
+credentials.json
+client_secret*.json
+service-account*.json
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+id_ecdsa*
+id_dsa*
+secrets/
+
+# Logs & temp files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# IDE files
+.idea/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Python caches (if virtualenvs created inside)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

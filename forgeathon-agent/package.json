@@ -1,0 +1,140 @@
+{
+  "name": "forgeathon-agent",
+  "displayName": "Forge Agent (TrueForge)",
+  "description": "Editor-native coding agent whose agent loop runs on TrueForge",
+  "version": "0.1.0",
+  "publisher": "forgeathon",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "forge.inlineEdit",
+        "title": "Forge: Inline Edit (selection)"
+      },
+      {
+        "command": "forge.openPanel",
+        "title": "Forge: Open Agent Panel"
+      },
+      {
+        "command": "forge.stop",
+        "title": "Forge: Stop Agent"
+      },
+      {
+        "command": "forge.undo",
+        "title": "Forge: Undo Last Applied Change"
+      },
+      {
+        "command": "forge.hello",
+        "title": "Forge: Hello (TrueForge smoke test)"
+      },
+      {
+        "command": "forge.acceptHunk",
+        "title": "Forge: Accept Hunk"
+      },
+      {
+        "command": "forge.rejectHunk",
+        "title": "Forge: Reject Hunk"
+      },
+      {
+        "command": "forge.acceptAll",
+        "title": "Forge: Accept All Hunks"
+      },
+      {
+        "command": "forge.rejectAll",
+        "title": "Forge: Reject All Hunks"
+      }
+    ],
+    "configurationDefaults": {
+      "diffEditor.codeLens": true
+    },
+    "keybindings": [
+      {
+        "command": "forge.inlineEdit",
+        "key": "ctrl+shift+k",
+        "mac": "cmd+shift+k",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "forge.stop",
+        "key": "ctrl+shift+escape",
+        "mac": "cmd+shift+escape"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "forge.inlineEdit",
+          "when": "editorHasSelection",
+          "group": "forge"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Forge Agent",
+      "properties": {
+        "forge.baseUrl": {
+          "type": "string",
+          "default": "http://localhost:8790",
+          "description": "TrueForge server URL (local mode)."
+        },
+        "forge.primaryAgent": {
+          "type": "string",
+          "default": "forgeathon-primary",
+          "description": "Name of the saved TrueForge agent that uses the primary model."
+        },
+        "forge.fallbackAgent": {
+          "type": "string",
+          "default": "forgeathon-fallback",
+          "description": "Saved TrueForge agent (second model) used when the primary fails. Empty disables fallback."
+        },
+        "forge.mcpPort": {
+          "type": "number",
+          "default": 8791,
+          "description": "Port of the editor MCP server the extension hosts for TrueForge."
+        },
+        "forge.firstTokenTimeoutSeconds": {
+          "type": "number",
+          "default": 30,
+          "description": "If the model sends nothing for this long, the attempt counts as failed (retry, then fallback agent). The last agent gets 3x."
+        },
+        "forge.maxRetries": {
+          "type": "number",
+          "default": 2,
+          "description": "Retries with exponential backoff per agent before falling back."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "scan": "node scripts/scan-secrets.mjs",
+    "setup:trueforge": "node scripts/setup-trueforge.mjs",
+    "test:e2e": "E2E=1 node --import tsx --test test/e2e.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@truefoundry/trueforge-sdk": "^0.185.0",
+    "diff": "^9.0.0",
+    "zod": "^4.6.7"
+  }
+}

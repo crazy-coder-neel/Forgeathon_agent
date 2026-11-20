@@ -1,0 +1,9 @@
+{
+  "trueforge": { "baseUrl": "http://localhost:8790" },
+  "mcp": { "name": "forge-editor", "url": "http://127.0.0.1:8791/mcp" },
+  "providers": [
+    { "type": "custom", "name": "mock-primary", "base_url": "http://127.0.0.1:9101/v1", "api_key_env": "X_UNSET", "models": [ { "name": "mock-a", "model_id": "mock-a", "properties": {} } ] },
+    { "type": "custom", "name": "mock-fallback", "base_url": "http://127.0.0.1:9102/v1", "api_key_env": "X_UNSET", "models": [ { "name": "mock-b", "model_id": "mock-b", "properties": {} } ] }
+  ],
+  "agents": { "primary": "mock-primary/mock-a", "fallback": "mock-fallback/mock-b" }
+}

@@ -1,0 +1,11 @@
+src/**
+test/**
+scripts/**
+docs/**
+node_modules/**
+**/*.map
+.env*
+config.local*.json
+*.key
+*.pem
+*.log

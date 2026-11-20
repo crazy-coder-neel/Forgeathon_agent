@@ -1,0 +1,30 @@
+{
+  "_readme": "Copy to config.local.json (git-ignored) and edit. Never commit real keys: put them in env vars and reference them with api_key_env.",
+  "trueforge": { "baseUrl": "http://localhost:8790" },
+  "mcp": { "name": "forge-editor", "url": "http://127.0.0.1:8791/mcp" },
+  "providers": [
+    {
+      "_comment": "PRIMARY: Google Gemini from TrueForge's catalog (no name/base_url: the provider is named after its type). Any other catalog provider (openai, anthropic, ...) or a type 'custom' OpenAI-compatible endpoint works the same way. Set GEMINI_API_KEY in your shell. Free tier is ~15 requests/minute; the extension waits out 429s automatically.",
+      "type": "google-gemini",
+      "api_key_env": "GEMINI_API_KEY",
+      "models": [
+        { "name": "gemini-3-5-flash-lite", "model_id": "gemini-3.5-flash-lite", "properties": { "context_length": 1048576, "max_output_tokens": 65536 } },
+        { "name": "gemini-3-5-flash", "model_id": "gemini-3.5-flash", "properties": { "context_length": 1048576, "max_output_tokens": 65536 } }
+      ]
+    },
+    {
+      "_comment": "FALLBACK: a local model behind Ollama's OpenAI-compatible endpoint (no key needed; a placeholder is used). Start Ollama with OLLAMA_CONTEXT_LENGTH=16384 so prompts are not truncated. Use a model that supports tool calling.",
+      "type": "custom",
+      "name": "fallback-llm",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key_env": "FALLBACK_API_KEY",
+      "models": [
+        { "name": "gemma4-e2b", "model_id": "gemma4:e2b-it-qat", "properties": { "context_length": 16384, "max_output_tokens": 4096 } }
+      ]
+    }
+  ],
+  "agents": {
+    "primary": "google-gemini/gemini-3-5-flash-lite",
+    "fallback": "fallback-llm/gemma4-e2b"
+  }
+}
