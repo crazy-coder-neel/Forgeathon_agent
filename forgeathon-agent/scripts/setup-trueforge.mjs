@@ -56,16 +56,30 @@ async function api(method, path, body) {
   return json;
 }
 
-// 1. providers
+// 1. providers.
+// Two passes so a model can be swapped while an agent still uses it (TrueForge refuses to drop an in-use model):
+//   pass 1 registers the union of existing + configured models, agents are re-pointed in step 3, pass 2 prunes the old models.
+const isLocalUrl = (u) => /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])([:/]|$)/i.test(u ?? '');
+const existingProviders = (await api('GET', '/api/v1/settings/model-providers')).data ?? [];
+const prepared = [];
 for (const p of cfg.providers ?? []) {
   const { api_key_env, _comment, ...manifest } = p;
+  const label = manifest.name ?? manifest.type;
   if (api_key_env) {
-    const key = process.env[api_key_env] ?? 'not-needed';
-    if (!process.env[api_key_env]) console.warn(`  note: env var ${api_key_env} is not set; using a placeholder key for "${manifest.name ?? manifest.type}"`);
-    manifest.auth = { api_key: key };
+    const key = process.env[api_key_env];
+    if (!key && !isLocalUrl(manifest.base_url)) {
+      // never overwrite a stored key with a placeholder for a remote provider
+      console.warn(`  SKIPPED provider "${label}": env var ${api_key_env} is not set (existing registration left untouched)`);
+      continue;
+    }
+    if (!key) console.warn(`  note: env var ${api_key_env} is not set; using a placeholder key for local provider "${label}"`);
+    manifest.auth = { api_key: key ?? 'not-needed' };
   }
-  await api('PUT', '/api/v1/settings/model-providers', { manifest });
-  console.log(`provider ok: ${manifest.name ?? manifest.type}`);
+  const old = existingProviders.find((e) => e.name === label)?.manifest?.models ?? [];
+  const union = [...(manifest.models ?? []), ...old.filter((m) => !(manifest.models ?? []).some((n) => n.name === m.name))];
+  await api('PUT', '/api/v1/settings/model-providers', { manifest: { ...manifest, models: union } });
+  console.log(`provider ok: ${label}`);
+  prepared.push(manifest);
 }
 
 // 2. MCP server hosted by the extension
@@ -94,6 +108,15 @@ async function saveAgent(name, model) {
 await saveAgent('forgeathon-primary', cfg.agents.primary);
 if (cfg.agents.fallback) await saveAgent('forgeathon-fallback', cfg.agents.fallback);
 if (cfg.agents.local) await saveAgent('forgeathon-local', cfg.agents.local); // optional third tier (e.g. Ollama)
+
+// pass 2: drop models that are no longer configured (best effort; a model still used by some other agent is kept)
+for (const manifest of prepared) {
+  try {
+    await api('PUT', '/api/v1/settings/model-providers', { manifest });
+  } catch (e) {
+    console.warn(`  note: kept extra models on "${manifest.name ?? manifest.type}": ${String(e.message).slice(0, 160)}`);
+  }
+}
 
 const models = await api('GET', '/api/v1/models');
 const names = JSON.stringify(models).match(/"[a-z0-9-]+\/[A-Za-z0-9._-]+"/g) ?? [];

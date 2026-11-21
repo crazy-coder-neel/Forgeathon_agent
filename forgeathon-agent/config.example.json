@@ -13,13 +13,13 @@
       ]
     },
     {
-      "_comment": "FALLBACK: OpenRouter through TrueForge's 'custom' OpenAI-compatible provider. Set OPENROUTER_API_KEY (https://openrouter.ai/keys). model_id can be any OpenRouter model that supports tool calling; free ':free' models come and go, so check https://openrouter.ai/models?supported_parameters=tools and edit model_id if this one is gone.",
+      "_comment": "FALLBACK: OpenRouter through TrueForge's 'custom' OpenAI-compatible provider. Set OPENROUTER_API_KEY (https://openrouter.ai/keys). model_id can be any OpenRouter model that supports tool calling; free ':free' models are retired often (qwen/qwen3-coder:free already was; its paid slug qwen/qwen3-coder still works), so check https://openrouter.ai/models?supported_parameters=tools and edit model_id if this one is gone.",
       "type": "custom",
       "name": "openrouter",
       "base_url": "https://openrouter.ai/api/v1",
       "api_key_env": "OPENROUTER_API_KEY",
       "models": [
-        { "name": "qwen3-coder", "model_id": "qwen/qwen3-coder:free", "properties": { "context_length": 262144, "max_output_tokens": 16384 } }
+        { "name": "free-router", "model_id": "openrouter/free", "properties": { "context_length": 200000, "max_output_tokens": 16384 } }
       ]
     },
     {
@@ -35,7 +35,7 @@
   ],
   "agents": {
     "primary": "google-gemini/gemini-3-5-flash-lite",
-    "fallback": "openrouter/qwen3-coder",
+    "fallback": "openrouter/free-router",
     "local": "local-llm/gemma4-e2b"
   }
 }
