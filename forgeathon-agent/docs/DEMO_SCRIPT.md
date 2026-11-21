@@ -24,8 +24,8 @@ Point at "Files chosen & why" and the tool log (repo_map -> search -> read). Rev
 ## After recording
 Fill timestamps in `docs/WRITEUP.md` section 6, export it to PDF (1-3 pages), make repo + video public, open both links in an incognito window. Deadline 20 Nov 2026, 23:59 IST.
 
-## Notes for the Gemini + Ollama configuration
-- Start Ollama with `OLLAMA_CONTEXT_LENGTH=16384` (PowerShell: `$env:OLLAMA_CONTEXT_LENGTH=16384; ollama serve`) and make sure the fallback model is pulled (`ollama pull gemma4:e2b-it-qat`).
-- Task C recipe: set an invalid key (`$env:GEMINI_API_KEY="invalid"`), run `npm run setup:trueforge`, repeat Task A: the panel prints the retry and "Switching automatically to fallback agent" notes and the local model proposes the diff. Restore the real key and re-run setup afterwards.
+## Notes for the Gemini + OpenRouter configuration
+- Set both `GEMINI_API_KEY` and `OPENROUTER_API_KEY` before `npm run setup:trueforge`. (Optional Ollama tier: `OLLAMA_CONTEXT_LENGTH=16384`, `ollama pull gemma4:e2b-it-qat`, and set `forge.localAgent` to `forgeathon-local`.)
+- Task C recipe: set an invalid key (`$env:GEMINI_API_KEY="invalid"`), run `npm run setup:trueforge`, repeat Task A: the panel prints the retry and "Switching automatically to fallback agent" notes and the OpenRouter model proposes the diff. Restore the real key and re-run setup afterwards.
 - Time budget for 4:00: Task A 1:00, Task B 1:45, Task C 1:00, spare 0:15. You may cut model waiting time, but never cut between the instruction and the diff appearing.
 - Free-tier Gemini rate limits are waited out automatically (the panel says so); trim that wait in the edit, not the instruction-to-diff moment.

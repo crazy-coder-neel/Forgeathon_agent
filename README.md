@@ -27,7 +27,8 @@ TrueForge locally and load the agent definition), the architecture, the context 
 ### Prerequisites
 - Node.js 22.14+ (`node -v`), Git, VS Code 1.90+, Python 3.10+
 - A free Gemini API key from https://aistudio.google.com/apikey (primary model)
-- Ollama from https://ollama.com/download (local fallback model)
+- An OpenRouter API key from https://openrouter.ai/keys (fallback model)
+- Optional: Ollama from https://ollama.com/download (local last-resort model)
 
 ### 1. Get the code and the test repository
 The Flask clone must sit **next to** the `forgeathon-agent` folder (it is git-ignored).
@@ -52,14 +53,15 @@ $env:FLASK_DIR="..\flask"; npm test    # expect: pass 16, fail 0
 ```
 
 ### 3. Start TrueForge in local mode (separate terminal, keep it open)
-TrueForge blocks loopback URLs by default, and the extension's MCP server and Ollama both live on localhost, so allow them:
+TrueForge blocks loopback URLs by default, and the extension's MCP server (and Ollama, if used) live on localhost, so allow them:
 ```powershell
 $env:OUTBOUND_URL_ALLOWED_HOSTS='["127.0.0.1","localhost"]'
 npx @truefoundry/trueforge@latest
 ```
 Open http://localhost:8790 to confirm it is running.
 
-### 4. Start the fallback model (separate terminal)
+### 4. (Optional) Start Ollama as a third-tier local model (separate terminal)
+Skip this if you only want Gemini + OpenRouter: delete the `local-llm` provider and `agents.local` from `config.local.json`.
 ```powershell
 ollama pull gemma4:e2b-it-qat
 $env:OLLAMA_CONTEXT_LENGTH=16384
@@ -72,9 +74,11 @@ Keys are read from environment variables and are never stored in the repo.
 ```powershell
 copy config.example.json config.local.json    # git-ignored; edit to change models
 $env:GEMINI_API_KEY="<your key>"
+$env:OPENROUTER_API_KEY="<your key>"
 npm run setup:trueforge
 ```
-Expected output: `provider ok`, `mcp server ok`, `agent ok: forgeathon-primary`, `agent ok: forgeathon-fallback`.
+Expected output: `provider ok`, `mcp server ok`, `agent ok: forgeathon-primary` (Gemini), `agent ok: forgeathon-fallback` (OpenRouter), and `agent ok: forgeathon-local` if you kept Ollama.
+To enable the Ollama tier at runtime, set the VS Code setting `forge.localAgent` to `forgeathon-local`.
 The agent definition used is `agent/forgeathon-agent.json`.
 
 ### 6. Launch the extension
@@ -92,7 +96,7 @@ The agent definition used is `agent/forgeathon-agent.json`.
 | Press **Stop** during a run | Streaming stops immediately, diff tabs close, `git status` stays clean |
 
 ### Switching models
-Edit `config.local.json` (`providers`, `agents.primary`, `agents.fallback`) and re-run `npm run setup:trueforge`. Any catalog provider or OpenAI-compatible endpoint works (for example OpenRouter, with `base_url` `https://openrouter.ai/api/v1`). The extension only knows agent names, never a provider.
+Edit `config.local.json` (`providers`, `agents.primary`, `agents.fallback`) and re-run `npm run setup:trueforge`. Any catalog provider or OpenAI-compatible endpoint works. The default fallback is OpenRouter (`base_url` `https://openrouter.ai/api/v1`); change `model_id` to any OpenRouter model that supports tool calling. The extension only knows agent names, never a provider.
 
 ### macOS / Linux
 Replace `$env:NAME="value"` with `export NAME="value"` (for the allow-list use single quotes: `export OUTBOUND_URL_ALLOWED_HOSTS='["127.0.0.1","localhost"]'`), activate the venv with `source .venv/bin/activate`, and use `cp` instead of `copy`.

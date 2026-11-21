@@ -1,10 +1,10 @@
 {
-  "_readme": "Copy to config.local.json (git-ignored) and edit. Never commit real keys: put them in env vars and reference them with api_key_env.",
+  "_readme": "Copy to config.local.json (git-ignored) and edit. Never commit real keys: put them in env vars and reference them with api_key_env. Chain order: agents.primary -> agents.fallback -> agents.local (optional).",
   "trueforge": { "baseUrl": "http://localhost:8790" },
   "mcp": { "name": "forge-editor", "url": "http://127.0.0.1:8791/mcp" },
   "providers": [
     {
-      "_comment": "PRIMARY: Google Gemini from TrueForge's catalog (no name/base_url: the provider is named after its type). Any other catalog provider (openai, anthropic, ...) or a type 'custom' OpenAI-compatible endpoint works the same way. Set GEMINI_API_KEY in your shell. Free tier is ~15 requests/minute; the extension waits out 429s automatically.",
+      "_comment": "PRIMARY: Google Gemini from TrueForge's catalog (no name/base_url: the provider is named after its type). Set GEMINI_API_KEY in your shell. Free tier is ~15 requests/minute; the extension waits out 429s automatically.",
       "type": "google-gemini",
       "api_key_env": "GEMINI_API_KEY",
       "models": [
@@ -13,11 +13,21 @@
       ]
     },
     {
-      "_comment": "FALLBACK: a local model behind Ollama's OpenAI-compatible endpoint (no key needed; a placeholder is used). Start Ollama with OLLAMA_CONTEXT_LENGTH=16384 so prompts are not truncated. Use a model that supports tool calling.",
+      "_comment": "FALLBACK: OpenRouter through TrueForge's 'custom' OpenAI-compatible provider. Set OPENROUTER_API_KEY (https://openrouter.ai/keys). model_id can be any OpenRouter model that supports tool calling; free ':free' models come and go, so check https://openrouter.ai/models?supported_parameters=tools and edit model_id if this one is gone.",
       "type": "custom",
-      "name": "fallback-llm",
+      "name": "openrouter",
+      "base_url": "https://openrouter.ai/api/v1",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "models": [
+        { "name": "qwen3-coder", "model_id": "qwen/qwen3-coder:free", "properties": { "context_length": 262144, "max_output_tokens": 16384 } }
+      ]
+    },
+    {
+      "_comment": "OPTIONAL LAST RESORT: a local model behind Ollama's OpenAI-compatible endpoint (no key needed; a placeholder is used). Start Ollama with OLLAMA_CONTEXT_LENGTH=16384. Remove this provider and agents.local if you do not use Ollama.",
+      "type": "custom",
+      "name": "local-llm",
       "base_url": "http://127.0.0.1:11434/v1",
-      "api_key_env": "FALLBACK_API_KEY",
+      "api_key_env": "OLLAMA_API_KEY",
       "models": [
         { "name": "gemma4-e2b", "model_id": "gemma4:e2b-it-qat", "properties": { "context_length": 16384, "max_output_tokens": 4096 } }
       ]
@@ -25,6 +35,7 @@
   ],
   "agents": {
     "primary": "google-gemini/gemini-3-5-flash-lite",
-    "fallback": "fallback-llm/gemma4-e2b"
+    "fallback": "openrouter/qwen3-coder",
+    "local": "local-llm/gemma4-e2b"
   }
 }

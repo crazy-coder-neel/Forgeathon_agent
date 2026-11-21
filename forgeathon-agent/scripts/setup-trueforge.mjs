@@ -93,6 +93,7 @@ async function saveAgent(name, model) {
 }
 await saveAgent('forgeathon-primary', cfg.agents.primary);
 if (cfg.agents.fallback) await saveAgent('forgeathon-fallback', cfg.agents.fallback);
+if (cfg.agents.local) await saveAgent('forgeathon-local', cfg.agents.local); // optional third tier (e.g. Ollama)
 
 const models = await api('GET', '/api/v1/models');
 const names = JSON.stringify(models).match(/"[a-z0-9-]+\/[A-Za-z0-9._-]+"/g) ?? [];

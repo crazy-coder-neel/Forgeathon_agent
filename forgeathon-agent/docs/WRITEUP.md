@@ -23,7 +23,8 @@ Agent-driven retrieval with hard budgets (`src/context/budget.ts`): `repo_map` (
 | Role | Model | Where it runs | Approx. cost |
 |---|---|---|---|
 | Primary | Google Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`), TrueForge `google-gemini` catalog provider | Google API, free tier | ₹0 |
-| Fallback | Gemma 4 e2b (`gemma4:e2b-it-qat`) via Ollama, TrueForge `custom` OpenAI-compatible provider | Local laptop | ₹0 |
+| Fallback | Qwen3 Coder (`qwen/qwen3-coder:free`) via OpenRouter, TrueForge `custom` OpenAI-compatible provider | OpenRouter API (free model) | ₹0 |
+| Optional 3rd tier | Gemma 4 e2b (`gemma4:e2b-it-qat`) via Ollama, enabled with `forge.localAgent` | Local laptop | ₹0 |
 
 Models are configured in TrueForge only. To switch, edit `config.local.json` (providers, `agents.primary`, `agents.fallback`) and run `npm run setup:trueforge`, or edit the agent in TrueForge's UI. The extension only knows agent names. Keys live in environment variables; `config.example.json` ships without secrets.
 

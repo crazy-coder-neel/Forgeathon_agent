@@ -97,6 +97,11 @@
           "default": "forgeathon-fallback",
           "description": "Saved TrueForge agent (second model) used when the primary fails. Empty disables fallback."
         },
+        "forge.localAgent": {
+          "type": "string",
+          "default": "",
+          "description": "Optional third-tier TrueForge agent (for example 'forgeathon-local' on Ollama) tried after the fallback agent fails. Empty disables it."
+        },
         "forge.mcpPort": {
           "type": "number",
           "default": 8791,

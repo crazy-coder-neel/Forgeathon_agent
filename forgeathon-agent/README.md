@@ -46,8 +46,9 @@ npm test                     # 16 tests, no TrueForge needed (set FLASK_DIR=../f
 
 # 3. configure models (keys come from env vars, never from files)
 cp config.example.json config.local.json        # edit providers + agents.primary / agents.fallback
-export GEMINI_API_KEY=...                        # PowerShell: $env:GEMINI_API_KEY="..."   (the fallback is local Ollama: no key)
-npm run setup:trueforge                          # registers providers, the MCP server and the two agents via TrueForge's API
+export GEMINI_API_KEY=...                        # PowerShell: $env:GEMINI_API_KEY="..."   (primary)
+export OPENROUTER_API_KEY=...                    # PowerShell: $env:OPENROUTER_API_KEY="..."   (fallback; Ollama as optional 3rd tier needs no key)
+npm run setup:trueforge                          # registers providers, the MCP server and the agents via TrueForge's API
 
 # 4. run the extension
 code .                       # open THIS folder and press F5: a new window opens on ../flask with the extension loaded
@@ -77,8 +78,9 @@ only knows agent *names* (`forge.primaryAgent`, `forge.fallbackAgent` settings),
 
 ## Resilience (Task C)
 1. `forgeathon-primary` fails (bad key, unreachable endpoint): retry with exponential backoff (`forge.maxRetries`, default 2: 1 s, 2 s).
-2. Still failing: **automatic switch to `forgeathon-fallback`** (a second TrueForge agent on another model). The panel says so.
-3. Both fail: a clear error message. Nothing is ever written before an accept, so `git status` stays clean.
+2. Still failing: **automatic switch to `forgeathon-fallback`** (OpenRouter by default, a second TrueForge agent on another model). The panel says so.
+3. Optional: if `forge.localAgent` is set (for example `forgeathon-local` on Ollama), it is tried after the fallback fails.
+4. All fail: a clear error message. Nothing is ever written before an accept, so `git status` stays clean.
 A restart is only attempted if the agent has not yet made any tool call (so side effects are never repeated).
 *Honest note:* TrueForge itself has no model-fallback feature yet (documented as "planned"), so the fallback is orchestrated by the extension using two TrueForge agents.
 

@@ -32,6 +32,7 @@ export class AgentController implements vscode.Disposable {
       baseUrl: c.get<string>('baseUrl', 'http://localhost:8790'),
       primary: c.get<string>('primaryAgent', 'forgeathon-primary'),
       fallback: c.get<string>('fallbackAgent', 'forgeathon-fallback'),
+      local: c.get<string>('localAgent', ''),
       port: c.get<number>('mcpPort', 8791),
       retries: c.get<number>('maxRetries', 2),
       firstTokenTimeoutMs: c.get<number>('firstTokenTimeoutSeconds', 30) * 1000,
@@ -139,7 +140,7 @@ export class AgentController implements vscode.Disposable {
       approve: (t) => this.approve(t),
     };
     try {
-      const agents = [cfg.primary, cfg.fallback].filter((a): a is string => !!a);
+      const agents = [cfg.primary, cfg.fallback, cfg.local].filter((a): a is string => !!a);
       const r = await this.runner.runResilient(message, hooks, { agents, maxRetries: cfg.retries, firstTokenTimeoutMs: cfg.firstTokenTimeoutMs });
       if (r.status === 'cancelled') {
         this.review.discardAll('stopped by user');
